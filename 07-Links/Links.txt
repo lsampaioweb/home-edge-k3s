@@ -9,3 +9,12 @@
 
 04 - Client and Server Certificates
   https://docs.k3s.io/cli/certificate
+
+05 - Server configuration options:
+  https://docs.k3s.io/cli/server
+
+06 - Agent configuration options:
+  https://docs.k3s.io/cli/agent
+
+07 - The FASTEST Way to run Kubernetes at Home - k3s Ansible Automation - Kubernetes in your HomeLab
+  https://www.youtube.com/watch?v=CbkEWcUZ7zM
