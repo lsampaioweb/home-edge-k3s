@@ -1,0 +1,8 @@
+01 - Quick-Start Guide
+  https://docs.k3s.io/quick-start
+
+02 - Install K3s on Proxmox Using Ansible
+  https://dev.to/algo7/install-k3s-on-proxmox-using-ansible-20j1
+
+03 - How to Setup a K3s Kubernetes Cluster on Ubuntu 22.04
+  https://www.digitalocean.com/community/tutorials/how-to-setup-k3s-kubernetes-cluster-on-ubuntu
