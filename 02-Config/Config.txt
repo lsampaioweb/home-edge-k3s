@@ -1,0 +1,4 @@
+01 - Private Registry Configuration.
+  Upon startup, K3s will check to see if /etc/rancher/k3s/registries.yaml exists. If so, the registry configuration contained in this file is used when generating the containerd configuration.
+
+  nano /etc/rancher/k3s/registries.yaml

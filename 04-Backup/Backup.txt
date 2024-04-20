@@ -1,0 +1,4 @@
+Creating Snapshots
+  Snapshots are enabled by default, at 00:00 and 12:00 system time, with 5 snapshots retained.
+
+  The snapshot directory defaults to ${data-dir}/server/db/snapshots. The data-dir value defaults to /var/lib/rancher/k3s and can be changed by setting the --data-dir flag.

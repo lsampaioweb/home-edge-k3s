@@ -1,0 +1,11 @@
+01 - Stop servers:
+  sudo systemctl stop k3s
+
+02 - Restart servers:
+  sudo systemctl start k3s
+
+03 - Stop agents:
+  sudo systemctl stop k3s-agent
+
+04 - Restart agents:
+  sudo systemctl start k3s-agent

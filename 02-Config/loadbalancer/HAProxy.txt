@@ -1,0 +1,18 @@
+01 - Install HAProxy and KeepAlived:
+  sudo apt install -y haproxy keepalived
+
+02 - Add the following to lb-1 and lb-2:
+  cp haproxy.cfg /etc/haproxy/
+
+03 - Add the following to lb-1 and lb-2:
+  cp keepalived.conf /etc/keepalived/
+
+04 - Restart HAProxy and KeepAlived on lb-1 and lb-2:
+  systemctl restart haproxy
+  systemctl restart keepalived
+
+05 - On agent-1, agent-2, and agent-XX, run the following command to install k3s and join the cluster:
+  curl -sfL https://get.k3s.io | K3S_TOKEN=<TOKEN> sh -s - agent --server https://10.10.10.100:6443
+
+06 - Verify if everything is correct.
+  k3s kubectl get nodes -A

@@ -1,0 +1,23 @@
+In this example there are 3 servers, S1, S2, and S3. The snapshot is located on S1.
+
+01 - On S1:
+
+  k3s server \
+    --cluster-reset \
+    --cluster-reset-restore-path=<PATH-TO-SNAPSHOT>
+
+02 - On S2 and S3:
+
+  systemctl stop k3s
+  rm -rf /var/lib/rancher/k3s/server/db/
+
+03 - On S1:
+  systemctl start k3s
+
+04 - On S2 and S3:
+  systemctl start k3s
+
+05 - Prune local snapshots:
+  The prune subcommand takes an additional flag --snapshot-retention that allows for overriding the default retention policy.
+
+  k3s etcd-snapshot prune

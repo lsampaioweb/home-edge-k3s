@@ -1,0 +1,11 @@
+01 - To uninstall K3s from a server node, run:
+  /usr/local/bin/k3s-uninstall.sh
+
+02 - To uninstall K3s from an agent node, run:
+  /usr/local/bin/k3s-agent-uninstall.sh
+
+03 - Killall script:
+  The killall script cleans up containers, K3s directories, and networking components while also removing the iptables chain with all the associated rules. The cluster data will not be deleted.
+
+  On a server node, run:
+  /usr/local/bin/k3s-killall.sh
