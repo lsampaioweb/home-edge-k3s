@@ -1,0 +1,106 @@
+Link:
+  How to Install Kubernetes on Ubuntu 22.04 | Step-by-Step
+    https://www.cherryservers.com/blog/install-kubernetes-on-ubuntu
+
+01 - Disable swap
+  swapon --show
+  sudo sed -i '/ swap / s/^/#/' /etc/fstab
+  swapon --show
+
+02 - Set up hostnames
+  sudo hostnamectl set-hostname "k3s-manager-01"
+  sudo hostnamectl set-hostname "k3s-worker-01"
+  exec bash
+
+03 - Set up the IPV4 bridge on all nodes
+  * By default, the Linux kernel does not allow IPv4 packets to be routed between interfaces. Most Kubernetes cluster networking implementations will change this setting (if needed), but some might expect the administrator to do it for them.
+
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+  sudo modprobe overlay
+  sudo modprobe br_netfilter
+
+  # sysctl params required by setup, params persist across reboots
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+  # Apply sysctl params without reboot
+  sudo sysctl --system
+
+  # Verify
+  sysctl net.ipv4.ip_forward
+
+04 - Install kubelet, kubeadm, and kubectl on each node
+  sudo apt update
+  sudo apt install -y apt-transport-https ca-certificates curl
+
+  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+  # Allow unprivileged APT programs to read this keyring
+  sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+  echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list
+
+  sudo apt update && sudo apt install -y kubelet kubeadm kubectl
+
+05 - Enable kubectl autocompletion
+  echo 'source <(kubectl completion bash)' >>~/.bashrc
+  source ~/.bashrc
+
+06 - Install Docker
+  sudo apt install -y docker.io
+
+  sudo mkdir /etc/containerd
+  sudo sh -c "containerd config default > /etc/containerd/config.toml"
+  sudo sed -i 's/ SystemdCgroup = false/ SystemdCgroup = true/' /etc/containerd/config.toml
+
+  sudo systemctl restart containerd.service
+  sudo systemctl restart kubelet.service
+  sudo systemctl enable kubelet.service
+
+07 - Initialize the Kubernetes cluster on the master node
+  sudo kubeadm config images pull
+  sudo kubeadm init --pod-network-cidr=10.10.0.0/16
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+08 - Configure kubectl and Calico
+  ** Run the following commands on the master node to deploy the Calico operator.
+
+  kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/tigera-operator.yaml
+  curl https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/custom-resources.yaml -O
+  sed -i 's/cidr: 192\.168\.0\.0\/16/cidr: 10.10.0.0\/16/g' custom-resources.yaml
+  kubectl create -f custom-resources.yaml
+
+09 - Allow connection on the Ports:
+  sudo ufw allow 179/tcp
+  sudo ufw allow 4789/tcp
+  sudo ufw allow 5473/tcp
+  sudo ufw allow 443/tcp
+  sudo ufw allow 6443/tcp
+  sudo ufw allow 2379/tcp
+  sudo ufw allow 4149/tcp
+  sudo ufw allow 10250/tcp
+  sudo ufw allow 10255/tcp
+  sudo ufw allow 10256/tcp
+  sudo ufw allow 9099/tcp
+
+09 - Add worker nodes to the cluster
+  ** Once you have configured the master node, you can add worker nodes to the cluster. When initializing Kubeadm on the master node, you will receive a token that you can use to add worker nodes.
+
+  ** To add the worker nodes to the Kubernetes cluster, use the kubeadm join command. (It looks like this below command. You can get the variable values from the above steps)
+
+  sudo kubeadm join <MASTER_NODE_IP>:<API_SERVER_PORT> --token <TOKEN> --discovery-token-ca-cert-hash <CERTIFICATE_HASH>
+
+10 - Verify the cluster and test
+  Finally, we want to verify whether our cluster is successfully created. We can list all nodes that are part of the cluster.
+  kubectl get nodes
