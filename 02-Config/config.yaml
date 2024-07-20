@@ -11,7 +11,7 @@ write-kubeconfig-mode: "0644"
 
 tls-san:
   - "10.10.10.100"
-  - "foo.homelab"
+  - "foo.lan.homelab"
 
 node-label:
   - "foo=bar"
